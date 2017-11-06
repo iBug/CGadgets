@@ -1,0 +1,33 @@
+# Project: Editor
+# Makefile created by Dev-C++ 5.11
+
+CPP      = g++.exe
+CC       = gcc.exe
+WINDRES  = windres.exe
+RES      = Editor_private.res
+OBJ      = main.o $(RES)
+LINKOBJ  = main.o $(RES)
+LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/mingw32/lib" -static-libstdc++ -static-libgcc -mwindows
+INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/mingw32/6.3.0/include"
+CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/mingw32/6.3.0/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/mingw32/6.3.0/include/c++"
+BIN      = Editor.exe
+CXXFLAGS = $(CXXINCS) -Wall -Wextra -O3 -Os -s -std=c++11 -m32
+CFLAGS   = $(INCS) -Wall -Wextra -O3 -Os -s -std=c11 -m32
+RM       = rm.exe -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+main.o: main.cpp
+	$(CPP) -c main.cpp -o main.o $(CXXFLAGS)
+
+Editor_private.res: Editor_private.rc resource.rc
+	$(WINDRES) -i Editor_private.rc -F pe-i386 --input-format=rc -o Editor_private.res -O coff 
+

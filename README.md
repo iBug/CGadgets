@@ -1,2 +1,3 @@
-# CppGadgets
-A collection of my gadgets written in C or C++. Mostly in Windows.
+# CGadgets
+
+A collection of my gadgets written in C or C++. Mostly on Windows.

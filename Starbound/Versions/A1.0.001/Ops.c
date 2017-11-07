@@ -62,7 +62,7 @@ byte Vertical(COORD Pos)// Vertical Combo
 
 inline byte newItem(){
 	int r = random;
-	return r>32000?0xF0+random%ASO:1+random%AO;
+	return r>32000?0xF0+random%ASO:random%AO;
 }
 
 int isValidPos(COORD Pos){

@@ -15,7 +15,7 @@
 #define boardS (boardW*boardH)
 #define AO 7
 #define ASO 6 
-const char Vers[32] = "InDev Alpha 1.0.002";
+const char Vers[32] = "InDev Alpha 1.0.001";
 
 // General Library
 typedef unsigned char byte;

@@ -80,7 +80,8 @@ id_t insertRecord(Data* data, const Record* record){
 		for (id_t i = newRecord->id; i < data->count-1; i ++){
 			data->records[i]->id = data->records[i+1]->id;
 		}
-		data->records[data->count - 1]->id = nextId;
+		if (newRecord->id < nextId)
+			data->records[data->count - 1]->id = nextId;
 	}
 	data->records = realloc(data->records, sizeof(Record*) * ++(data->count));
 	for (id_t i = data->count - 1; i > newRecord->id; i --){

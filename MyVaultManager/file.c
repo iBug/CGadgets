@@ -9,8 +9,8 @@
 #include "data.h"
 #include "file.h"
 
-static const unsigned long MAGIC = 0xAABBCCDD;
-static const unsigned long VERSION = 1;
+static const int32_t MAGIC = 0xAABBCCDD;
+static const int32_t VERSION = 1;
 
 Data* readFile(const char* filename){
 	FILE *fp = fopen(filename, "rb");

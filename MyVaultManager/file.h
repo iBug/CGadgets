@@ -5,6 +5,7 @@
 #define _FILE_H
 
 #include <stddef.h>
+#include <stdint.h> 
 #include "data.h"
 
 typedef struct _FileBlockHeader{
@@ -22,8 +23,8 @@ typedef struct _FileContent{
 } FileContent;
 
 typedef struct _FileHeader{
-	unsigned long magic;
-	unsigned long version;
+	int32_t magic;
+	int32_t version;
 } FileHeader;
 
 typedef struct _FileDat{

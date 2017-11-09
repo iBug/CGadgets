@@ -58,19 +58,38 @@ Data* menuNewData(void){
 	return createEmptyData();
 }
 
-int menuNewRecord(Data* data){
+Record* readRecord(void){
+	static const unsigned char MonthDays[13] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 	Date date;
 	currency_t amount;
 	double amountd;
-	char detail[1024];
+	char detail[4096];
 	printf("\nEnter date:\n");
-	printf("    Enter year: "); scanf("%d", &date.year);
-	printf("    Enter month: "); scanf("%d", &date.month);
-	printf("    Enter day: "); scanf("%d", &date.day);
-	printf("Enter amount: "); scanf("%lf", &amountd);
+	printf("    Enter year: ");
+	while(!scanf("%d", &date.year) || (date.month<0 || date.month>9999)){
+		clearInputBuffer();
+		printf("    Re-enter a corrent year: "); 
+	}
+	printf("    Enter month: ");
+	while(!scanf("%d", &date.month) || (date.month>12 || date.month<1)){
+		clearInputBuffer();
+		printf("    Re-enter a corrent month: "); 
+	}
+	printf("    Enter day: ");
+	while(!scanf("%d", &date.day) || (date.day > MonthDays[date.month] || date.day<1)){
+		clearInputBuffer();
+		printf("    Re-enter a corrent day: "); 
+	}
+	printf("Enter amount: ");
+	while(!scanf("%lf", &amountd)) clearInputBuffer();
 	amount = (currency_t)(amountd * 100.0);
-	printf("Enter detail: "); gets(detail); gets(detail);
-	Record *record = createRecord(date, amount, detail);
+	clearInputBuffer();
+	printf("Enter detail: "); gets(detail);
+	return createRecord(date, amount, detail);
+}
+
+int menuNewRecord(Data* data){
+	Record *record = readRecord();
 	record->id = insertRecord(data, record);
 	puts("\nThis is the new record created:");
 	displayRecord(record);
@@ -93,18 +112,8 @@ Record* menuUpdateRecord(Data* data){
 	}
 	puts("\nThis is the record to be changed:");
 	displayRecord(oldRecord);
-	Date date;
-	currency_t amount;
-	double amountd;
-	char detail[1024];
-	printf("\nEnter new date:\n");
-	printf("    Enter year: "); scanf("%d", &date.year);
-	printf("    Enter month: "); scanf("%d", &date.month);
-	printf("    Enter day: "); scanf("%d", &date.day);
-	printf("Enter new amount: "); scanf("%lf", &amountd);
-	amount = (currency_t)(amountd * 100.0);
-	printf("Enter detail: "); gets(detail); gets(detail);
-	Record *record = createRecord(date, amount, detail);
+	puts("\nNow enter a new record:\n");
+	Record *record = readRecord();
 	updateRecord(oldRecord, record);
 	destroyRecord(record); 
 	puts("\nThis is the updated record:");
@@ -129,12 +138,12 @@ int menuQueryRecord(Data* data){
 	scanf("%d", &id);
 	Record *record = queryRecord(data, id);
 	if (!record){
-		puts("That record does not exist!");
+		puts("\nThat record does not exist!");
 		puts("\nPress any key to continue.");
 		pause();
 		return 1;
 	}
-	puts("This is the record:");
+	puts("\nThis is the record:");
 	displayRecord(record);
 	puts("\nPress any key to continue.");
 	pause();
@@ -168,6 +177,7 @@ int menuSaveData(Data* data, const char* filename){
 		return 1;
 	}
 	printf("%lu bytes successfully written to %s\n", size, filename);
+	puts("\nPress any key to continue.");
 	pause();
 	return 0;
 }

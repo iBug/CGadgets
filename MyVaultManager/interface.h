@@ -20,6 +20,7 @@ int menuQueryRecord(Data*);
 int menuDeleteRecord(Data*);
 int menuSaveData(Data*, const char*);
 
+Record* readRecord(void);
 int displayRecord(const Record*);
 int displayData(const Data*);
 

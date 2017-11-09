@@ -96,6 +96,7 @@ int menuNewRecord(Data* data){
 		printf("Re-enter a corrent ID: "); 
 	}
 	Record *record = readRecord();
+	record->id = id;
 	record->id = insertRecord(data, record);
 	puts("\nThis is the new record created:");
 	displayRecord(record);

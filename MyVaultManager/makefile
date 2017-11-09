@@ -13,4 +13,4 @@ cvault: $(OBJS)
 	$(CC) -c -o $@ $^
 
 clean:
-	rm -f $(OBJS)
+	rm -f cvault $(OBJS)

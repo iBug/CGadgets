@@ -54,7 +54,6 @@ void pause(void){
     newState.c_cc[VMIN] = 1;
     tcsetattr(STDIN_FILENO, TCSANOW, &newState);
     c = getchar();
-    c = getchar();
     tcsetattr(STDIN_FILENO, TCSANOW, &savedState);
     return;
 }

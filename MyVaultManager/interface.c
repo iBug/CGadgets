@@ -43,12 +43,11 @@ option_t menuMain(Data** pdata){
 	printf("\nEnter your choice: ");
 	option_t option;
 	int success = scanf("%d", &option);
+	clearInputBuffer();
 	if (!success){
-		clearKeyBuffer();
 		return OPTION_INVALID;
 	}
 	if (option < 0){
-		clearKeyBuffer();
 		return OPTION_INVALID;
 	}
 	return option;
@@ -84,13 +83,13 @@ Record* readRecord(void){
 	while(!scanf("%lf", &amountd)) clearInputBuffer();
 	amount = (currency_t)(amountd * 100.0);
 	clearInputBuffer();
-	printf("Enter detail: "); gets(detail);
+	printf("Enter detail: "); fgets(detail, sizeof(detail), stdin);
 	return createRecord(date, amount, detail);
 }
 
 int menuNewRecord(Data* data){
 	id_t id;
-	printf("\nEnter the ID of new record [0-%d]: ", data->count);
+	printf("\nEnter the ID of new record [0-%lu]: ", data->count); 
 	while(!scanf("%ld", &id) || (id<0 || id>data->count)){
 		clearInputBuffer();
 		printf("Re-enter a corrent ID: "); 
@@ -109,7 +108,7 @@ int menuNewRecord(Data* data){
 Record* menuUpdateRecord(Data* data){
 	id_t id;
 	printf("\nEnter data ID: ");
-	scanf("%d", &id);
+	scanf("%ld", &id);
 	Record *oldRecord = queryRecord(data, id);
 	if (!oldRecord){
 		puts("That record does not exist!");
@@ -142,7 +141,7 @@ int menuDisplayData(const Data* data){
 int menuQueryRecord(Data* data){
 	id_t id;
 	printf("\nEnter data ID to query: ");
-	scanf("%d", &id);
+	scanf("%ld", &id);
 	Record *record = queryRecord(data, id);
 	if (!record){
 		puts("\nThat record does not exist!");
@@ -160,7 +159,8 @@ int menuQueryRecord(Data* data){
 int menuDeleteRecord(Data* data){
 	id_t id;
 	printf("\nEnter data ID to delete: ");
-	scanf("%d", &id);
+	scanf("%ld", &id);
+	clearInputBuffer();
 	Record *record = queryRecord(data, id);
 	if (!record){
 		puts("That record does not exist!");
@@ -190,16 +190,16 @@ int menuSaveData(Data* data, const char* filename){
 }
 
 int displayRecord(const Record* record){
-	printf("ID:     %10d\n", record->id);
+	printf("ID:     %10ld\n", record->id);
 	printf("Date:   %4d/%2d/%2d\n", record->date.year, record->date.month, record->date.day);
-	printf("Amount: %+7d.%02d\n", record->amount/100, record->amount%100); 
+	printf("Amount: %+7ld.%02ld\n", record->amount/100, record->amount%100); 
 	printf("Detail: %s\n", record->detail);
 	return 0;
 }
 
 int displayData(const Data* data){
 	if (!data) return 0;
-	printf("There are %d records in the database.\n", data->count);
+	printf("There are %lu records in the database.\n", data->count);
 	for (int i = 0; i < data->count; i ++){
 		puts("");
 		displayRecord(data->records[i]);

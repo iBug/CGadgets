@@ -1,0 +1,25 @@
+#--------------------------------
+#  makefile for Win32
+#--------------------------------
+
+CC=cl /nologo
+CFLAGS=-Ox -Os -Wall
+
+LINKER=link
+LINKCON = /nologo
+
+all: cvault.exe
+
+OBJ = obj
+
+OBJS = $(OBJ)\main.obj  \
+	$(OBJ)\data.obj \
+    $(OBJ)\file.obj \
+    $(OBJ)\interface.obj \
+     $(OBJ)\sys.obj
+
+%.obj: %.c
+    $(CC) /Fo$(OBJ)\ $(CFLAGS) $(@B).c
+
+cvault.exe: $(OBJS)
+    $(LINKER) $(LINKCON) -OUT:$@ $(OBJS)

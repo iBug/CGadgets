@@ -33,6 +33,7 @@ void clearScreen(void){
 	FillConsoleOutputCharacter(hOutput, 0x20, size, startPos, &clsCount);
 	FillConsoleOutputAttribute(hOutput, 0x07, size, startPos, &clsCount);
 	SetConsoleCursorPosition(hOutput,startPos);
+	SetConsoleTextAttribute(hOutput, 0x07);
 }
 
 #endif // _WIN32

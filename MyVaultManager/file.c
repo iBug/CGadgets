@@ -54,8 +54,8 @@ size_t writeFile(const char* filename, const Data* data){
 	file.content.header.count = data->count;
 	size += fwrite(&file.content.header, sizeof(file.content.header), 1, fp) * sizeof(file.content.header);
 	for (int i = 0; i < file.content.header.count; i ++){
-		size_t clen = strlen(data->records[i]->detail);
 		FileBlock block;
+		size_t clen = strlen(data->records[i]->detail);
 		block.length = sizeof(*(data->records[i])) - sizeof(const char*) + sizeof(char)*((clen/4+1)*4);
 		char *buffer = malloc(block.length);
 		Record *record = (Record*)buffer;

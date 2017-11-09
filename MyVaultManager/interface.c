@@ -89,6 +89,12 @@ Record* readRecord(void){
 }
 
 int menuNewRecord(Data* data){
+	id_t id;
+	printf("\nEnter the ID of new record [0-%d]: ", data->count);
+	while(!scanf("%d", &id) || (id<0 || id>data->count)){
+		clearInputBuffer();
+		printf("Re-enter a corrent ID: "); 
+	}
 	Record *record = readRecord();
 	record->id = insertRecord(data, record);
 	puts("\nThis is the new record created:");
@@ -187,6 +193,7 @@ int displayRecord(const Record* record){
 	printf("Date:   %4d/%2d/%2d\n", record->date.year, record->date.month, record->date.day);
 	printf("Amount: %+7d.%02d\n", record->amount/100, record->amount%100); 
 	printf("Detail: %s\n", record->detail);
+	return 0;
 }
 
 int displayData(const Data* data){
@@ -196,4 +203,5 @@ int displayData(const Data* data){
 		puts("");
 		displayRecord(data->records[i]);
 	}
+	return 0;
 }

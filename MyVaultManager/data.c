@@ -72,9 +72,21 @@ id_t getNextId(const Data* data){
 id_t insertRecord(Data* data, const Record* record){
 	if (!data || !record) return ID_INVALID;
 	Record* newRecord = createRecord(record->date, record->amount, record->detail);
-	newRecord->id = getNextId(data);
+	id_t nextId = getNextId(data);
+	newRecord->id = record->id;
+	if (newRecord->id > nextId) newRecord->id = nextId;
+	if (newRecord->id < 0) newRecord->id = 0;
+	if (data->count > 0){
+		for (id_t i = newRecord->id; i < data->count-1; i ++){
+			data->records[i]->id = data->records[i+1]->id;
+		}
+		data->records[data->count - 1]->id = nextId;
+	}
 	data->records = realloc(data->records, sizeof(Record*) * ++(data->count));
-	data->records[data->count - 1] = newRecord;
+	for (id_t i = data->count - 1; i > newRecord->id; i --){
+		data->records[i] = data->records[i-1];
+	}
+	data->records[newRecord->id] = newRecord;
 	return newRecord->id;
 }
 

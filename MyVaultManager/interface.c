@@ -66,7 +66,7 @@ Record* readRecord(void){
 	char detail[4096];
 	printf("\nEnter date:\n");
 	printf("    Enter year: ");
-	while(!scanf("%d", &date.year) || (date.month<0 || date.month>9999)){
+	while(!scanf("%d", &date.year) || (date.year<0 || date.year>9999)){
 		clearInputBuffer();
 		printf("    Re-enter a corrent year: "); 
 	}

@@ -91,7 +91,7 @@ Record* readRecord(void){
 int menuNewRecord(Data* data){
 	id_t id;
 	printf("\nEnter the ID of new record [0-%d]: ", data->count);
-	while(!scanf("%d", &id) || (id<0 || id>data->count)){
+	while(!scanf("%ld", &id) || (id<0 || id>data->count)){
 		clearInputBuffer();
 		printf("Re-enter a corrent ID: "); 
 	}

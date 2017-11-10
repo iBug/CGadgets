@@ -8,6 +8,8 @@
 
 typedef signed int option_t;
 
+extern const char * const _Filename;
+
 option_t menuMain(Data**);
 
 #define OPTION_INVALID (-1)
@@ -18,7 +20,7 @@ Record* menuUpdateRecord(Data*);
 int menuDisplayData(const Data*);
 int menuQueryRecord(Data*);
 int menuDeleteRecord(Data*);
-int menuSaveData(Data*, const char*);
+int menuSaveData(Data*);
 
 Record* readRecord(void);
 int displayRecord(const Record*);

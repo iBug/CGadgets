@@ -7,6 +7,8 @@
 #include "interface.h"
 #include "sys.h"
 
+const char * const _Filename = "vault.dat";
+
 int main(){
 	Data *data = NULL;
 	option_t option;
@@ -29,7 +31,7 @@ int main(){
 				menuDeleteRecord(data);
 				break;
 			case 6: // Save to file
-				menuSaveData(data, "vault.dat");
+				menuSaveData(data);
 				break;
 			case 0: // Quit
 				destroyData(data);

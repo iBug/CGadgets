@@ -21,7 +21,7 @@ option_t menuMain(Data** pdata){
 	puts("******************");
 	puts("");
 	if (*pdata == NULL)
-		*pdata = readFile("vault.dat");
+		*pdata = readFile(_Filename);
 	if (*pdata == NULL){
 		puts("[Info] The default database isn't found. Creating an empty database.\n");
 		*pdata = menuNewData();
@@ -65,17 +65,17 @@ Record* readRecord(void){
 	char detail[4096];
 	printf("\nEnter date:\n");
 	printf("    Enter year: ");
-	while(!scanf("%d", &date.year) || (date.year<0 || date.year>9999)){
+	while(!scanf("%hd", &date.year) || (date.year<0 || date.year>9999)){
 		clearInputBuffer();
 		printf("    Re-enter a corrent year: "); 
 	}
 	printf("    Enter month: ");
-	while(!scanf("%d", &date.month) || (date.month>12 || date.month<1)){
+	while(!scanf("%hhu", &date.month) || (date.month>12 || date.month<1)){
 		clearInputBuffer();
 		printf("    Re-enter a corrent month: "); 
 	}
 	printf("    Enter day: ");
-	while(!scanf("%d", &date.day) || (date.day > MonthDays[date.month] || date.day<1)){
+	while(!scanf("%hhu", &date.day) || (date.day > MonthDays[date.month] || date.day<1)){
 		clearInputBuffer();
 		printf("    Re-enter a corrent day: "); 
 	}
@@ -176,14 +176,14 @@ int menuDeleteRecord(Data* data){
 	return 0;
 }
 
-int menuSaveData(Data* data, const char* filename){
-	size_t size = writeFile(filename, data);
+int menuSaveData(Data* data){
+	size_t size = writeFile(_Filename, data);
 	if (size == 0){
 		puts("Error saving data.");
 		pause();
 		return 1;
 	}
-	printf("%lu bytes successfully written to %s\n", size, filename);
+	printf("%lu bytes successfully written to %s\n", size, _Filename);
 	puts("\nPress any key to continue.");
 	pause();
 	return 0;

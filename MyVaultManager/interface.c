@@ -144,6 +144,7 @@ int menuQueryRecord(Data* data){
 	id_t id;
 	printf("\nEnter data ID to query: ");
 	scanf("%ld", &id);
+	clearInputBuffer();
 	Record *record = queryRecord(data, id);
 	if (!record){
 		puts("\nThat record does not exist!");

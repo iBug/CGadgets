@@ -84,6 +84,8 @@ Record* readRecord(void){
 	amount = (currency_t)(amountd * 100.0);
 	clearInputBuffer();
 	printf("Enter detail: "); fgets(detail, sizeof(detail), stdin);
+	size_t detailLen = strlen(detail);
+	if (detail[detailLen-1] == '\n') detail[detailLen-1] = '\0';
 	return createRecord(date, amount, detail);
 }
 

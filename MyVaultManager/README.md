@@ -4,7 +4,7 @@ A slightly complicated program that maintains a database, and records your balan
 
 This is a (final) homework from a C programming language course.
 
-If you aren't quite familiar with `make` and wish to use [Dev-C++][devc], you can take `MyVault.dev` in `Dev-C++/` and put it along with other files, so you can compile the whole project easily with Dev-C++.
+If you aren't quite familiar with `make` and wish to use [Dev-C++][devcpp], you can take `MyVault.dev` in `Dev-C++/` and put it along with other files, so you can compile the whole project easily with Dev-C++.
 
 ---
 

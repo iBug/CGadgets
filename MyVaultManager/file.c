@@ -64,9 +64,14 @@ size_t writeFile(const char* filename, const Data* data){
 		record->date.month = data->records[i]->date.month;
 		record->date.day = data->records[i]->date.day;
 		record->amount = data->records[i]->amount;
-		strcpy((char*)&record->detail, data->records[i]->detail);
+		// Fill 4-byte padding with zero
+		for (int i = 1; i <= 4; i ++)
+			buffer[block.length-i] = 0;
+		// Special bug here. Don't use strcpy() or strncpy().
+		memcpy((char*)&record->detail, data->records[i]->detail, 1+clen);
 		size += fwrite(&block.length, sizeof(block.length), 1, fp) * sizeof(block.length);
 		size += fwrite(buffer, block.length, 1, fp) * block.length;
+		free(buffer);
 	}
 	fclose(fp);
 	return size;

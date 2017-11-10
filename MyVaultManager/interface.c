@@ -176,7 +176,7 @@ int menuDeleteRecord(Data* data){
 	return 0;
 }
 
-int menuSaveData(Data* data){
+int menuSaveData(const Data* data){
 	size_t size = writeFile(_Filename, data);
 	if (size == 0){
 		puts("Error saving data.");

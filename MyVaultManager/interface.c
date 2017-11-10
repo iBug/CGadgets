@@ -70,12 +70,12 @@ Record* readRecord(void){
 		printf("    Re-enter a corrent year: "); 
 	}
 	printf("    Enter month: ");
-	while(!scanf("%hhu", &date.month) || (date.month>12 || date.month<1)){
+	while(!scanf("%u", &date.month) || (date.month>12 || date.month<1)){
 		clearInputBuffer();
 		printf("    Re-enter a corrent month: "); 
 	}
 	printf("    Enter day: ");
-	while(!scanf("%hhu", &date.day) || (date.day > MonthDays[date.month] || date.day<1)){
+	while(!scanf("%u", &date.day) || (date.day > MonthDays[date.month] || date.day<1)){
 		clearInputBuffer();
 		printf("    Re-enter a corrent day: "); 
 	}

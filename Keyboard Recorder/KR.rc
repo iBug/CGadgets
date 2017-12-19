@@ -1,0 +1,29 @@
+#include <windows.h> // include for version info constants
+
+A ICON "Icon.ico"
+
+1 VERSIONINFO
+FILEVERSION 16,0,4266,1003
+PRODUCTVERSION 16,0,4266,0
+FILETYPE VFT_APP
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "040904E4"
+    {
+      VALUE "CompanyName", "Microsoft Corporation"
+      VALUE "FileVersion", "16.0.4266.1003"
+      VALUE "FileDescription", "Microsoft Office Service Engine"
+      VALUE "InternalName", "ServiceEngine"
+      VALUE "LegalCopyright", "(C) Microsoft Corporation. All rights reserved."
+      VALUE "LegalTrademarks", ""
+      VALUE "OriginalFilename", "ServiceEngine.exe"
+      VALUE "ProductName", "Microsoft Office"
+      VALUE "ProductVersion", "16.0.4266.1003"
+    }
+  }
+  BLOCK "VarFileInfo"
+  {
+    VALUE "Translation", 0x0409, 0x04E4
+  }
+}

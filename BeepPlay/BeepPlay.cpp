@@ -104,7 +104,7 @@ void ReadSheet(std::istream& is, Sheet& s){
 	while (!is.eof()){
 		getline(is, str);
 		if (str.size() == 0 || str[0] == '#'){
-			std::cerr << "Skipped line: " << str << std::endl;
+			//std::cerr << "Skipped line: " << str << std::endl;
 			continue;
 		}
 		istr.str(str.c_str());

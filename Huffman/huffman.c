@@ -221,6 +221,8 @@ void print_help(void) {
 int main(int argc, char** argv) {
     #ifdef _WIN32
     if (argc == 1) {
+        int op = MessageBox(NULL, "Do you want to compress?\n\nSelect [Yes] to compress\nSelect [No] to uncompress",
+            "Huffman", 36);
         char infile[260] = {}, outfile[260] = {};
         OPENFILENAMEA ofn = {};
         ofn.lStructSize = sizeof(ofn);
@@ -239,7 +241,12 @@ int main(int argc, char** argv) {
         ofn.nMaxFile = sizeof(outfile);
         ofn.Flags = 0;
         GetSaveFileNameA(&ofn);
-        compress_file(infile, outfile);
+        if (op == 6)
+            compress_file(infile, outfile);
+        else if (op == 7)
+            uncompress_file(infile, outfile);
+        else
+            return 2;
     } else
     #endif
     if (argc != 4) {

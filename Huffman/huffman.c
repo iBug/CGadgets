@@ -211,17 +211,25 @@ void uncompress_file(const char* filename, const char* newname) {
     fclose(fout);
 }
 
+void print_help(void) {
+    puts("Usage: huffman (-c|-d) input output");
+    puts("  -c    Compress file from input to output");
+    puts("  -d    Uncompress file from input to output");
+    puts("\nCreated by iBug");
+}
+
 int main(int argc, char** argv) {
-    if (argc < 3) {
+    if (argc != 4) {
+        print_help();
         return 1;
     }
-    if (!strcmp(argv[1], "-d")) {
-        if (argc < 4) {
-            return 1;
-        }
+    if (!strcmp(argv[1], "-c")) {
+        compress_file(argv[2], argv[3]);
+    } else if (!strcmp(argv[1], "-d")) {
         uncompress_file(argv[2], argv[3]);
     } else {
-        compress_file(argv[1], argv[2]);
+        print_help();
+        return 1;
     }
     return 0;
 }

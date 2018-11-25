@@ -2,7 +2,7 @@
 // Author: iBug
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <windows.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -175,7 +175,7 @@ void compress_file(const char* filename, const char* newname) {
     FILE *fin = fopen(filename, "rb"),
          *fout = fopen(newname, "wb");
 
-    unsigned freq[256], padding;
+    unsigned freq[256] = {0}, padding;
     HuffNode tree[512];
     size_t padding_pos;
     count_frequency(fin, freq);
@@ -219,11 +219,33 @@ void print_help(void) {
 }
 
 int main(int argc, char** argv) {
+    #ifdef _WIN32
+    if (argc == 1) {
+        char infile[260] = {}, outfile[260] = {};
+        OPENFILENAMEA ofn = {};
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = NULL;
+        ofn.lpstrFile = infile;
+        ofn.nMaxFile = sizeof(infile);
+        ofn.lpstrFilter = "";
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+        GetOpenFileNameA(&ofn);
+
+        ofn.lpstrFile = outfile;
+        ofn.nMaxFile = sizeof(outfile);
+        ofn.Flags = 0;
+        GetSaveFileNameA(&ofn);
+        compress_file(infile, outfile);
+    } else
+    #endif
     if (argc != 4) {
         print_help();
         return 1;
-    }
-    if (!strcmp(argv[1], "-c")) {
+    } else if (!strcmp(argv[1], "-c")) {
         compress_file(argv[2], argv[3]);
     } else if (!strcmp(argv[1], "-d")) {
         uncompress_file(argv[2], argv[3]);

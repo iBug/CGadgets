@@ -2,9 +2,12 @@
 // Author: iBug
 
 #include <stdio.h>
-#include <windows.h>
 #include <string.h>
 #include <stdint.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 typedef unsigned char byte;
 

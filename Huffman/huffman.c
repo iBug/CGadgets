@@ -278,6 +278,8 @@ void print_help(void) {
 
 int main(int argc, char** argv) {
     #ifdef _WIN32
+    const char *ALL_FILES = "All files\0*.*\0",
+               *HUFF_FILE = "All files\0*.*\0Huffman-encoded file (.huff)\0*.huff\0";
     if (argc == 1) {
         int op = MessageBox(NULL, "Do you want to compress?\n\nSelect [Yes] to compress\nSelect [No] to uncompress",
             "Huffman", 36);
@@ -285,20 +287,30 @@ int main(int argc, char** argv) {
         OPENFILENAMEA ofn = {};
         ofn.lStructSize = sizeof(ofn);
         ofn.hwndOwner = NULL;
-        ofn.lpstrFile = infile;
-        ofn.nMaxFile = sizeof(infile);
-        ofn.lpstrFilter = "";
-        ofn.nFilterIndex = 1;
         ofn.lpstrFileTitle = NULL;
         ofn.nMaxFileTitle = 0;
         ofn.lpstrInitialDir = NULL;
+
+        ofn.lpstrFile = infile;
+        ofn.nMaxFile = sizeof(infile);
+        ofn.nFilterIndex = 2;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+        if (op == 6)
+            ofn.lpstrFilter = ALL_FILES;
+        else if (op == 7)
+            ofn.lpstrFilter = HUFF_FILE;
         GetOpenFileNameA(&ofn);
 
         ofn.lpstrFile = outfile;
         ofn.nMaxFile = sizeof(outfile);
+        ofn.nFilterIndex = 2;
         ofn.Flags = 0;
+        if (op == 6)
+            ofn.lpstrFilter = HUFF_FILE;
+        else if (op == 7)
+            ofn.lpstrFilter = ALL_FILES;
         GetSaveFileNameA(&ofn);
+
         if (op == 6)
             compress_file(infile, outfile);
         else if (op == 7)

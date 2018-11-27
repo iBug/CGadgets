@@ -112,7 +112,30 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
     byte ch;
     byte buf = 0, nbuf = 0;
     const HuffNode *p;
-    byte code[256];
+
+    // First create a lookup table
+    byte *code[256];
+    size_t codelen[256];
+    for (int i = 0; i < 256; i++) {
+        byte t[256];
+        // Encode
+        p = &tree[i];
+        n = 0;
+        while (p->parent) {
+            if (p == p->parent->left) {
+                // Left is 0
+                t[n] = 0;
+            } else if (p == p->parent->right) {
+                t[n] = 1;
+            }
+            p = p->parent;
+            n++;
+        }
+        codelen[i] = n;
+        code[i] = malloc(n * sizeof(byte));
+        for (int j = 0; j < n; j++)
+            code[i][j] = t[n - 1 - j];
+    }
 
     size_t startpos = ftell(fin);
     fseek(fin, 0L, SEEK_END);
@@ -135,23 +158,9 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
         ch = readbuf[BUFSIZE - readsize];
         readsize--;
 
-        // Encode
-        p = &tree[ch];
-        n = 0;
-        while (p->parent) {
-            if (p == p->parent->left) {
-                // Left is 0
-                code[n] = 0;
-            } else if (p == p->parent->right) {
-                code[n] = 1;
-            }
-            p = p->parent;
-            n++;
-        }
-
         // Write
-        for (int i = n - 1; i >= 0; i--) {
-            buf |= code[i] << nbuf;
+        for (int i = 0; i < codelen[ch]; i++) {
+            buf |= code[ch][i] << nbuf;
             nbuf++;
             if (nbuf == 8) {
                 fputc(buf, fout);
@@ -166,6 +175,8 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
         fputc(buf, fout);
     }
     free(readbuf);
+    for (int i = 0; i < 256; i++)
+        free(code[i]);
 }
 
 void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding) {

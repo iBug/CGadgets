@@ -10,7 +10,8 @@
 #include <windows.h>
 #endif
 
-#define BUFSIZE 8192
+// 64 KiB buffer can provide enough performance
+#define BUFSIZE 65536
 
 typedef unsigned char byte;
 
@@ -26,7 +27,7 @@ void count_frequency(FILE* fp, uint32_t* freq) {
     fseek(fp, orig_pos, SEEK_SET);
     size_t size = end_pos - orig_pos;
 
-    // Use a 8 KiB buffer
+    // Use a buffer
     byte *buf = malloc(BUFSIZE * sizeof(buf));
     while (size >= BUFSIZE) {
         fread(buf, BUFSIZE, 1, fp);
@@ -142,8 +143,9 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
     size_t endpos = ftell(fin);
     fseek(fin, startpos, SEEK_SET);
     size_t size = endpos - startpos;
-    byte *readbuf = malloc(BUFSIZE * sizeof(byte));
-    size_t readsize = 0;
+    byte *readbuf = malloc(BUFSIZE * sizeof(byte)),
+         *writebuf = malloc(BUFSIZE * sizeof(byte));
+    size_t readsize = 0, writesize = 0;
     while (1) {
         if (readsize == 0) {
             if (size == 0)
@@ -163,19 +165,26 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
             buf |= code[ch][i] << nbuf;
             nbuf++;
             if (nbuf == 8) {
-                fputc(buf, fout);
+                writebuf[writesize++] = buf;
+                if (writesize == BUFSIZE) {
+                    fwrite(writebuf, writesize, 1, fout);
+                    writesize = 0;
+                }
                 nbuf = buf = 0;
             }
         }
     }
+EXIT:
     if (nbuf == 0) {
         *padding = 0;
     } else {
         *padding = 8 - nbuf;
-        fputc(buf, fout);
+        writebuf[writesize++] = buf;
     }
-EXIT:
+    fwrite(writebuf, writesize, 1, fout);
+    writesize = 0;
     free(readbuf);
+    free(writebuf);
     for (int i = 0; i < 256; i++)
         free(code[i]);
 }
@@ -186,8 +195,9 @@ void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding
     size_t endpos = ftell(fin); // last byte handling
     fseek(fin, startpos, SEEK_SET);
     size_t size = endpos - startpos;
-    byte *readbuf = malloc(BUFSIZE * sizeof(byte));
-    size_t readsize = 0;
+    byte *readbuf = malloc(BUFSIZE * sizeof(byte)),
+         *writebuf = malloc(BUFSIZE * sizeof(byte));
+    size_t readsize = 0, writesize = 0;
 
     byte buf = 0, nbuf = 0, bit;
     const HuffNode *p;
@@ -228,10 +238,17 @@ void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding
             else
                 p = p->right;
         }
-        fputc(p->data, fout);
+        writebuf[writesize++] = p->data;
+        if (writesize == BUFSIZE) {
+            fwrite(writebuf, writesize, 1, fout);
+            writesize = 0;
+        }
     }
 EXIT:
+    if (writesize > 0)
+        fwrite(writebuf, writesize, 1, fout);
     free(readbuf);
+    free(writebuf);
 }
 
 void compress_file(const char* filename, const char* newname) {

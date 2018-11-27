@@ -2,6 +2,7 @@
 // Author: iBug
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -16,21 +17,34 @@ typedef struct _HuffNode {
     struct _HuffNode *left, *right, *parent;
 } HuffNode;
 
-void count_frequency(FILE* fp, unsigned* freq) {
+void count_frequency(FILE* fp, uint32_t* freq) {
     size_t orig_pos = ftell(fp);
-    int ch;
-    while (1) {
-        ch = fgetc(fp);
-        if (ch < 0)
-            break;
-        freq[ch]++;
+    fseek(fp, 0L, SEEK_END);
+    size_t end_pos = ftell(fp);
+    fseek(fp, orig_pos, SEEK_SET);
+    size_t size = end_pos - orig_pos;
+
+    // Use a 8 KiB buffer
+    byte *buf = malloc(8192 * sizeof(buf));
+    while (size >= 8192) {
+        fread(buf, 8192, 1, fp);
+        for (int i = 0; i < 8192; i++)
+            freq[buf[i]]++;
+        size -= 8192;
+    }
+    if (size > 0) {
+        fread(buf, size, 1, fp);
+        for (int i = 0; i < size; i++)
+            freq[buf[i]]++;
+        size -= size;
     }
     fseek(fp, orig_pos, SEEK_SET);
+    free(buf);
 }
 
-void construct_huffman(unsigned* freq_in, HuffNode* tree) {
+void construct_huffman(const uint32_t* freq_in, HuffNode* tree) {
     int count = 256;
-    unsigned freq[256];
+    uint32_t freq[256];
     HuffNode *node[256];
 
     // Initialize data
@@ -47,7 +61,7 @@ void construct_huffman(unsigned* freq_in, HuffNode* tree) {
      * therefore I'm leaving this code here
      */
     {
-        unsigned lower[256], upper[256], top = 1;
+        uint32_t lower[256], upper[256], top = 1;
         lower[0] = 0, upper[0] = 256;
         while (top > 0) {
             top--;
@@ -57,7 +71,7 @@ void construct_huffman(unsigned* freq_in, HuffNode* tree) {
                 continue;
             while (i < j) {
                 if (freq[i] < freq[j]) {
-                    unsigned t = freq[i]; freq[i] = freq[j]; freq[j] = t;
+                    uint32_t t = freq[i]; freq[i] = freq[j]; freq[j] = t;
                     HuffNode *p = node[i]; node[i] = node[j]; node[j] = p;
                     flag = !flag;
                 }
@@ -82,7 +96,7 @@ void construct_huffman(unsigned* freq_in, HuffNode* tree) {
         freq[i] += freq[j];
         // Insert
         for (; i > 0 && freq[i] > freq[i - 1]; i--) {
-            unsigned t = freq[i]; freq[i] = freq[i - 1]; freq[i - 1] = t;
+            uint32_t t = freq[i]; freq[i] = freq[i - 1]; freq[i - 1] = t;
             HuffNode *p = node[i]; node[i] = node[i - 1]; node[i - 1] = p;
         }
         count--;
@@ -91,11 +105,11 @@ void construct_huffman(unsigned* freq_in, HuffNode* tree) {
     node[0]->parent = NULL;
 }
 
-void encode_stream(FILE* fin, FILE* fout, HuffNode* tree, unsigned* padding) {
+void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* padding) {
     int n;
     byte ch;
     byte buf = 0, nbuf = 0;
-    HuffNode *p;
+    const HuffNode *p;
     byte code[256];
     while (1) {
         n = fgetc(fin);
@@ -131,7 +145,7 @@ void encode_stream(FILE* fin, FILE* fout, HuffNode* tree, unsigned* padding) {
     *padding = 8 - nbuf;
 }
 
-void decode_stream(FILE* fin, FILE* fout, HuffNode* tree, unsigned padding) {
+void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding) {
     size_t startpos = ftell(fin); // should be 1028
     fseek(fin, 0L, SEEK_END);
     size_t endpos = ftell(fin); // last byte handling
@@ -139,7 +153,7 @@ void decode_stream(FILE* fin, FILE* fout, HuffNode* tree, unsigned padding) {
     int count = endpos - startpos;
 
     byte buf = 0, nbuf = 0, bit;
-    HuffNode *p;
+    const HuffNode *p;
     while (count > 0 || nbuf > 0) {
         // Start from tree top
         p = tree + 510;
@@ -178,14 +192,13 @@ void compress_file(const char* filename, const char* newname) {
     FILE *fin = fopen(filename, "rb"),
          *fout = fopen(newname, "wb");
 
-    unsigned freq[256] = {0}, padding;
+    uint32_t freq[256] = {}, padding;
     HuffNode tree[512];
     size_t padding_pos;
     count_frequency(fin, freq);
     construct_huffman(freq, tree);
     rewind(fin);
-    for (int i = 0; i < 256; i++)
-        fwrite(freq + i, 4, 1, fout);
+    fwrite(freq, 1024, 1, fout);
     // Write a placeholder for the padding
     padding_pos = ftell(fout);
     fwrite(&padding, 4, 1, fout);
@@ -201,12 +214,9 @@ void uncompress_file(const char* filename, const char* newname) {
     FILE *fin = fopen(filename, "rb"),
          *fout = fopen(newname, "wb");
 
-    unsigned freq[256], padding;
+    uint32_t freq[256], padding;
     HuffNode tree[512];
-    for (int i = 0; i < 256; i++) {
-        fread(&padding, 4, 1, fin);
-        freq[i] = padding;
-    }
+    fread(freq, 1024, 1, fin);
     fread(&padding, 4, 1, fin);
     construct_huffman(freq, tree);
     decode_stream(fin, fout, tree, padding);

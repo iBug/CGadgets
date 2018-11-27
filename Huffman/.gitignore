@@ -1,3 +1,6 @@
 huffman
 huffman_debug
+huffman.exe
+
 *.o
+*.obj

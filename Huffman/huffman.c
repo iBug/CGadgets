@@ -147,7 +147,7 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
     while (1) {
         if (readsize == 0) {
             if (size == 0)
-                break;
+                goto EXIT;
             if (size >= BUFSIZE)
                 readsize = BUFSIZE;
             else
@@ -174,6 +174,7 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
         *padding = 8 - nbuf;
         fputc(buf, fout);
     }
+EXIT:
     free(readbuf);
     for (int i = 0; i < 256; i++)
         free(code[i]);
@@ -198,7 +199,7 @@ void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding
             if (nbuf == 0) {
                 if (readsize == 0) {
                     if (size == 0)
-                        break;
+                        goto EXIT;
                     if (size >= BUFSIZE)
                         readsize = BUFSIZE;
                     else
@@ -213,7 +214,7 @@ void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding
                     // Last bit
                     nbuf = 8 - padding;
                     if (nbuf == 0)
-                        return;
+                        goto EXIT;
                 } else {
                     nbuf = 8;
                 }
@@ -229,6 +230,7 @@ void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding
         }
         fputc(p->data, fout);
     }
+EXIT:
     free(readbuf);
 }
 

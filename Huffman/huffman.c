@@ -10,6 +10,8 @@
 #include <windows.h>
 #endif
 
+#define BUFSIZE 8192
+
 typedef unsigned char byte;
 
 typedef struct _HuffNode {
@@ -25,12 +27,12 @@ void count_frequency(FILE* fp, uint32_t* freq) {
     size_t size = end_pos - orig_pos;
 
     // Use a 8 KiB buffer
-    byte *buf = malloc(8192 * sizeof(buf));
-    while (size >= 8192) {
-        fread(buf, 8192, 1, fp);
-        for (int i = 0; i < 8192; i++)
+    byte *buf = malloc(BUFSIZE * sizeof(buf));
+    while (size >= BUFSIZE) {
+        fread(buf, BUFSIZE, 1, fp);
+        for (int i = 0; i < BUFSIZE; i++)
             freq[buf[i]]++;
-        size -= 8192;
+        size -= BUFSIZE;
     }
     if (size > 0) {
         fread(buf, size, 1, fp);
@@ -111,11 +113,27 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
     byte buf = 0, nbuf = 0;
     const HuffNode *p;
     byte code[256];
+
+    size_t startpos = ftell(fin);
+    fseek(fin, 0L, SEEK_END);
+    size_t endpos = ftell(fin);
+    fseek(fin, startpos, SEEK_SET);
+    size_t size = endpos - startpos;
+    byte *readbuf = malloc(BUFSIZE * sizeof(byte));
+    size_t readsize = 0;
     while (1) {
-        n = fgetc(fin);
-        if (n < 0)
-            break;
-        ch = n;
+        if (readsize == 0) {
+            if (size == 0)
+                break;
+            if (size >= BUFSIZE)
+                readsize = BUFSIZE;
+            else
+                readsize = size;
+            fread(readbuf + BUFSIZE - readsize, readsize, 1, fin);
+            size -= readsize;
+        }
+        ch = readbuf[BUFSIZE - readsize];
+        readsize--;
 
         // Encode
         p = &tree[ch];
@@ -141,8 +159,13 @@ void encode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t* paddin
             }
         }
     }
-    fputc(buf, fout);
-    *padding = 8 - nbuf;
+    if (nbuf == 0) {
+        *padding = 0;
+    } else {
+        *padding = 8 - nbuf;
+        fputc(buf, fout);
+    }
+    free(readbuf);
 }
 
 void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding) {
@@ -150,30 +173,39 @@ void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding
     fseek(fin, 0L, SEEK_END);
     size_t endpos = ftell(fin); // last byte handling
     fseek(fin, startpos, SEEK_SET);
-    int count = endpos - startpos;
+    size_t size = endpos - startpos;
+    byte *readbuf = malloc(BUFSIZE * sizeof(byte));
+    size_t readsize = 0;
 
     byte buf = 0, nbuf = 0, bit;
     const HuffNode *p;
-    while (count > 0 || nbuf > 0) {
+    while (size > 0 || readsize > 0 || nbuf > 0) {
         // Start from tree top
         p = tree + 510;
         while (p->left || p->right) {
             // Prepare next bit if needed
             if (nbuf == 0) {
-                if (count <= 0)
-                    return;
+                if (readsize == 0) {
+                    if (size == 0)
+                        break;
+                    if (size >= BUFSIZE)
+                        readsize = BUFSIZE;
+                    else
+                        readsize = size;
+                    fread(readbuf + BUFSIZE - readsize, readsize, 1, fin);
+                    size -= readsize;
+                }
+                buf = readbuf[BUFSIZE - readsize];
+                readsize--;
 
-                buf = fgetc(fin);
-                if (count == 1) {
+                if (readsize == 0 && size == 0) {
                     // Last bit
                     nbuf = 8 - padding;
-                    if (nbuf == 0) {
+                    if (nbuf == 0)
                         return;
-                    }
                 } else {
                     nbuf = 8;
                 }
-                count--;
             }
             // p has child
             bit = buf & 1;
@@ -186,6 +218,7 @@ void decode_stream(FILE* fin, FILE* fout, const HuffNode* tree, uint32_t padding
         }
         fputc(p->data, fout);
     }
+    free(readbuf);
 }
 
 void compress_file(const char* filename, const char* newname) {
@@ -213,7 +246,6 @@ void compress_file(const char* filename, const char* newname) {
 void uncompress_file(const char* filename, const char* newname) {
     FILE *fin = fopen(filename, "rb"),
          *fout = fopen(newname, "wb");
-
     uint32_t freq[256], padding;
     HuffNode tree[512];
     fread(freq, 1024, 1, fin);

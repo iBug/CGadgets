@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS ?= -O3 -Wall
+CFLAGS := -O3 -std=c11 -Wall -Wno-unused-result
 
 all: huffman
 

@@ -1,0 +1,43 @@
+iBug Minesweeper II Change Log
+
+Version 2.1.2
+Build 22 - August 19th
+
+- Introduce the Settings Screen [So far only 1 option available]
+- Bug Fix: When middle key is held, safe areas shows as empty
+
+Version 2.1.1
+Build 21 - August 15th
+
+- Serious Bug Fix: [C01]Errorneous screen
+
+Version 2.1.0
+Build 20 - August 14th
+
+- Now allow custom board size and mines
+- Bug Fix: When certain Input Methods are enabled, the screen sometimes flush out
+
+Version 2.0.1
+Build 19 - August 14th
+
+- When you hold mouse buttons down your mouse position will be displayed, and the tiles around if you hold both buttons down
+- Bug Fix: When a single game is over 1000 sec. it still shows actual milliseconds instead of 999.999
+
+Build 18 - August 11th
+
+- Bug Fix: Remaining mines not shown correctly
+- Bug Fix: Swapped function of the two buttons when finishing a game
+
+Version 2.0.0
+Build 17 - August 11th
+
+- Fully rewritten code! Now in C++! Expect better performance, especially on slow computers!
+- Added "Return to Menu" and "Flush Board" buttons like Windows XP
+- New Objective Coding makes it much easier to maintain code
+- Added support for middle mouse button (The Scroller)
+- New "Sync" algorithm makes graphics 3x faster
+- New Memory Data Format makes debugging easier
+- Replaced some of the images
+- New timing system
+
+Version 1.* is out of support

@@ -1,0 +1,8 @@
+iBug Minesweeper III Change Log
+
+Version 3.0.0
+
+- Once more fully new codes. Now use Windows Console API instead of ISO-C++ standard functions for a performance BOOST!
+
+
+Note: Support for Minesweeper 2.* has been ended.
